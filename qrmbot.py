@@ -45,12 +45,12 @@ async def contests():
     await bot.say(result)
 
 @bot.command()
-async def dxcc():
+async def dxcc(prefix : str):
     """Display information on a DXCC entity"""
     await bot.say(result)
 
 @bot.command()
-async def eqsl():
+async def eqsl(callsign : str):
     """Last login to eQSL.cc for a callsign"""
     await bot.say(result)
 
@@ -60,27 +60,27 @@ async def kf():
     await bot.say(result)
 
 @bot.command()
-async def lotw():
+async def lotw(callsign : str):
     """Last upload date to LotW for a callsign"""
     await bot.say(result)
 
 @bot.command()
-async def call():
+async def call(callsign : str):
     """lookup a callsign on HamQTH?"""
-    await bot.say(result)
+    await bot.say(callsign)
 
 @bot.command()
-async def qth():
+async def qth(*, query : str):
     """look up a grid square or QTH"""
-    await bot.say('test')
+    await bot.say(query)
+
+# @bot.command()
+# async def grid():
+#     """alias for qth"""
+#     await bot.say('test')
 
 @bot.command()
-async def grid():
-    """alias for qth"""
-    await bot.say('test')
-
-@bot.command()
-async def spots():
+async def spots(callsign : str):
     """display spots for a callsign"""
     await bot.say(result)
 
@@ -94,50 +94,50 @@ async def utc():
     """display the current time in UTC"""
     await bot.say(result)
 
-@bot.command()
-async def z():
-    """alias for utc"""
-    await bot.say(result)
+# @bot.command()
+# async def z():
+#     """alias for utc"""
+#     await bot.say(result)
 
 @bot.command()
-async def wx():
-    """display current weather locations"""
+async def wx(*, loc : str):
+    """display current weather conditions"""
     await bot.say(result)
 
-@bot.command()
-async def wxfull():
-    """display more current weather conditions"""
-    await bot.say(result)
+# @bot.command()
+# async def wxfull():
+#     """display more current weather conditions"""
+#     await bot.say(result)
 
 @bot.command()
-async def morse():
+async def morse(*, message : str):
     """convert to morse code"""
     await bot.say(result)
 
-@bot.command()
-async def cw():
-    """alias for morse"""
-    await bot.say(result)
+# @bot.command()
+# async def cw():
+#     """alias for morse"""
+#     await bot.say(result)
 
 @bot.command()
-async def unmorse():
+async def unmorse(*, message : str):
     """decode from morse"""
     await bot.say(result)
 
-@bot.command()
-async def demorse():
-    """alias for unmorse"""
-    await bot.say(result)
+# @bot.command()
+# async def demorse():
+#     """alias for unmorse"""
+#     await bot.say(result)
 
 @bot.command()
 async def kindex():
     """3 day k-index forecast"""
     await bot.say(result)
 
-@bot.command()
-async def ki():
-    """alias for kindex"""
-    await bot.say(result)
+# @bot.command()
+# async def ki():
+#     """alias for kindex"""
+#     await bot.say(result)
 
 @bot.command()
 async def forecast():
@@ -145,42 +145,47 @@ async def forecast():
     await bot.say(result)
 
 @bot.command()
-async def phoneticise():
+async def phoneticise(*, message : str):
     """random phonetics"""
     await bot.say(result)
 
-@bot.command()
-async def phoneticize():
-    """random phonetics"""
-    await bot.say(result)
+# @bot.command()
+# async def phoneticize():
+#     """random phonetics"""
+#     await bot.say(result)
+
+# @bot.command()
+# async def phonetics():
+#     """random phonetics"""
+#     await bot.say(result)
 
 @bot.command()
-async def repeater():
+async def repeater(callsign : str):
     """look up repeater by callsign"""
     await bot.say(result)
 
 @bot.command()
-async def muf():
+async def muf(loc : str):
     """max useable frequency reports from ionosondes"""
     await bot.say(result)
 
-@bot.command()
-async def muf2():
-    """alt data sources for MUF"""
-    await bot.say(result)
+# @bot.command()
+# async def muf2():
+#     """alt data sources for MUF"""
+#     await bot.say(result)
 
 @bot.command()
-async def aprs():
+async def aprs(callsign : str):
     """APRS station info"""
     await bot.say(result)
 
 @bot.command()
-async def sun():
+async def sun(loc : str):
     """sun position"""
     await bot.say(result)
 
 @bot.command()
-async def moon():
+async def moon(loc : str):
     """moon position"""
     await bot.say(result)
 
@@ -195,19 +200,19 @@ async def graves():
     await bot.say(result)
 
 @bot.command()
-async def sat():
+async def sat(bird : str, loc : str):
     """satellite pass predictor"""
     await bot.say(result)
 
 @bot.command()
-async def qcode():
+async def qcode(query : str):
     """Q code lookup"""
     await bot.say(result)
 
-@bot.command()
-async def q():
-    """alias of qcode"""
-    await bot.say(result)
+# @bot.command()
+# async def q():
+#     """alias of qcode"""
+#     await bot.say(result)
 
 #########################
 
