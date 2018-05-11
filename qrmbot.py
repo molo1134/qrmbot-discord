@@ -22,16 +22,26 @@ async def on_ready():
 
 
 @bot.command()
-async def activity():
+async def activity(mode : str = '', grid : str = ''):
     """Band activity from PSKReporter"""
-    await bot.say(result)
-    # try:
-    #     rolls, limit = map(int, dice.split('d'))
-    # except Exception:
-    #     await bot.say('Format has to be in NdN!')
-    #     return
+    mhz = {
+            1: "160m", 3: "80m", 5: "60m", 7: "40m",
+            10: "30m", 14: "20m", 18: "17m", 21: "15m",
+            24: "12m", 26: "11m", 27: "11m", 28: "10m",
+            29: "10m", 50: "6m", 51: "6m", 52: "6m",
+            53: "6m", 69: "4m", 70: "4m", 144: "2m",
+            145: "2m", 146: "2m", 147: "2m", 220: "1.25m",
+            221: "1.25m", 222: "1.25m", 223: "1.25m",
+            224: "1.25m", 432: "0.70m", 902: "0.33m",
+            1296: "0.23m"
+            }
+    try:
+        asdf
+    except Exception:
+        await bot.say('Error! Usage:\n*?activity [mode] grid*')
+        return
 
-    # result = ''
+    result = 'test'
     await bot.say(result)
 
 @bot.command()
