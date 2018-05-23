@@ -53,6 +53,7 @@ async def phonetics(*, msg : str):
 
 @bot.command(aliases=['cw'])
 async def morse(*, msg : str):
+    '''Converts ASCII to international morse code (Alias: cw)'''
     result = ''
     for char in msg.upper():
         try:
@@ -64,6 +65,7 @@ async def morse(*, msg : str):
 
 @bot.command(aliases=['demorse'])
 async def unmorse(*, msg : str):
+    '''Converts international morse code to ASCII (Alias: demorse)'''
     result = ''
     msg = msg.split('/')
     msg = [m.split() for m in msg]
@@ -78,9 +80,11 @@ async def unmorse(*, msg : str):
 
 @bot.command(aliases=['z'])
 async def utc():
+    '''Gets the current time in UTC (Alias: z)'''
     d = datetime.datetime.utcnow()
     result = d.strftime('%Y-%m-%d %H:%M') + 'Z'
     await bot.say(result)
+
 
 #########################
 
