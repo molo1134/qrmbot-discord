@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import random
+import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -50,9 +51,44 @@ async def phonetics(*, msg : str):
         result += ' '
     await bot.say(result.title())
 
+@bot.command(aliases=['cw'])
+async def morse(*, msg : str):
+    result = ''
+    for char in msg.upper():
+        try:
+            result += ascii2morse[char]
+        except:
+            result += '<?>'
+        result += ' '
+    await bot.say(result)
+
+@bot.command(aliases=['demorse'])
+async def unmorse(*, msg : str):
+    result = ''
+    msg = msg.split('/')
+    msg = [m.split() for m in msg]
+    for word in msg:
+        for char in word:
+            try:
+                result += morse2ascii[char]
+            except:
+                result += '<?>'
+        result += ' '
+    await bot.say(result)
+
+@bot.command(aliases=['z'])
+async def utc():
+    d = datetime.datetime.utcnow()
+    result = d.strftime('%Y-%m-%d %H:%M') + 'Z'
+    await bot.say(result)
+
 #########################
 
 WORDS = open('words').read().splitlines()
+
+with open('morse.json') as morse_file:
+    ascii2morse = json.load(morse_file)
+    morse2ascii = {v:k for k,v in ascii2morse.items()}
 
 with open('qcodes.json') as qcode_file:
     qcodes = json.load(qcode_file)
