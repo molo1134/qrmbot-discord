@@ -102,6 +102,8 @@ async def dxcc(q : str):
         ituzone = d['itu']
         continent = d['continent']
         tz = d['tz']
+        if tz > 0:
+            tz = '+' + str(tz)
 
         res = f'''**{prefix}:** {entity}
     *CQ Zone:* {cqzone}
