@@ -45,7 +45,7 @@ async def phonetics(*, msg : str):
     for char in msg:
         if char.isalpha():
             w = [word for word in WORDS if (word[0] == char)]
-            result += w[random.randint(0,len(w)-1)]
+            result += random.choice(w)
         else:
             result += char
         result += ' '
@@ -85,10 +85,49 @@ async def utc():
     result = d.strftime('%Y-%m-%d %H:%M') + 'Z'
     await bot.say(result)
 
+@bot.command(aliases=['ae'])
+async def ae7q(call : str):
+    '''Links to info about a callsign from AE7Q. Alias: ae'''
+    await bot.say(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
+
+@bot.command(aliases=['dx'])
+async def dxcc(q : str):
+    '''Gets info about a prefix. Alias: dx'''
+    q = q.upper()
+    if q in CTY_list:
+        d = CTY[q]
+        prefix = q
+        entity = d['entity']
+        cqzone = d['cq']
+        ituzone = d['itu']
+        continent = d['continent']
+        tz = d['tz']
+        if tz > 0:
+            tz = '+' + str(tz)
+
+        res = f'''**{prefix}:** {entity}
+    *CQ Zone:* {cqzone}
+    *ITU Zone:* {ituzone}
+    *Continent:* {continent}
+    *Time Zone:* UTC{tz}'''
+    else:
+        res = f'Prefix {q} not found'
+    await bot.say(res)
+
+@bot.command(pass_context=True)
+async def plan(ctx):
+    '''Posts an image of the US Frequency Allocations'''
+    await bot.send_file(ctx.message.channel, 'band-chart.png')
 
 #########################
 
 WORDS = open('words').read().splitlines()
+
+with open('cty.json') as ctyfile:
+    CTY = json.load(ctyfile)
+    CTY_list = list(CTY.keys())
+    CTY_list.sort()
+    CTY_list.sort(key=len, reverse=True)
 
 with open('morse.json') as morse_file:
     ascii2morse = json.load(morse_file)
