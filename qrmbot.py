@@ -142,7 +142,7 @@ async def rq(ctx, level : str = None):
     except FileNotFoundError:
          await bot.say("I can't find the level you told me. Try typeing either ?rq, ?rq tech, ?rq general, ?rq extra.")
          return
-    embed = discord.Embed(name=question['number'], description=question['number'], colour=0x2dc614)
+    embed = discord.Embed(title=question['number'], colour=0x2dc614)
     embed = embed.add_field(name="Question:", value=question["text"], inline=False)
     embed = embed.add_field(name="Answers:", value=
                             "**A:** "+question["answers"][0] +
