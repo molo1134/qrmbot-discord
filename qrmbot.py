@@ -14,6 +14,7 @@ description = '''QRM'''
 pfx = '?'
 
 bot = commands.Bot(command_prefix=pfx, description=description)
+lastq = {}
 
 @bot.event
 async def on_ready():
@@ -118,6 +119,35 @@ async def dxcc(q : str):
 async def plan(ctx):
     '''Posts an image of the US Frequency Allocations'''
     await bot.send_file(ctx.message.channel, 'band-chart.png')
+
+@bot.command(aliases=['randomq'], pass_context=True)
+async def rq(ctx):
+    '''Gets a random question from the Technian/General/Extra question pools'''
+    list = ['Tech.json','General.json','Extra.json']
+    rq = random.choice(list)
+    try:
+        with open(rq) as data_file:
+            HQS = json.load(data_file)
+            question = HQS[random.randint(0,len(HQS)-1)]
+            #question = HQS[0]
+    except:
+         exit(1)
+    embed = discord.Embed(name=question['number'], description=question['number'], colour=0x2dc614)
+    embed = embed.add_field(name="Question:", value=question["text"], inline=False)
+    embed = embed.add_field(name="Answers:", value=
+                            "**A:** "+question["answers"][0] +
+                            "\n**B:** "+question["answers"][1] +
+                            "\n**C:** "+question["answers"][2] +
+                            "\n**D:** "+question["answers"][3], inline=False)
+    embed = embed.add_field(name="Answer:", value="Type _?rqa_ for answer", inline=False)
+    global lastq
+    lastq[ctx.message.channel.id] = question["answer"]
+    await bot.say(embed=embed)
+
+@bot.command(pass_context=True)
+async def rqa(ctx):
+    global lastq
+    await bot.say(lastq[ctx.message.channel.id])
 
 #########################
 
