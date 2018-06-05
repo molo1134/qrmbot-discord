@@ -121,17 +121,27 @@ async def plan(ctx):
     await bot.send_file(ctx.message.channel, 'band-chart.png')
 
 @bot.command(aliases=['randomq'], pass_context=True)
-async def rq(ctx):
+async def rq(ctx, level : str = None):
     '''Gets a random question from the Technian/General/Extra question pools'''
-    list = ['Tech.json','General.json','Extra.json']
-    rq = random.choice(list)
+    rq = ""
+
+    if level == "tech":
+        rq = "Tech.json"
+    if level == "general":
+        rq = "General.json"
+    if level == "extra":
+        rq = "Extra.json"
+    if level is None:
+          list = ['Tech.json','General.json','Extra.json']
+          rq = random.choice(list)
     try:
         with open(rq) as data_file:
             HQS = json.load(data_file)
-            question = HQS[random.randint(0,len(HQS)-1)]
+            question = random.choice(HQS)
             #question = HQS[0]
-    except:
-         exit(1)
+    except FileNotFoundError:
+         await bot.say("I can't find the level you told me. Try typeing either ?rq, ?rq tech, ?rq general, ?rq extra.")
+         return
     embed = discord.Embed(name=question['number'], description=question['number'], colour=0x2dc614)
     embed = embed.add_field(name="Question:", value=question["text"], inline=False)
     embed = embed.add_field(name="Answers:", value=
