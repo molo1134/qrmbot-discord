@@ -124,13 +124,23 @@ async def plan(ctx):
 async def rq(ctx, level : str = None):
     '''Gets a random question from the Technian/General/Extra question pools'''
     rq = ""
-
+    if level == "t":
+        rq = "Tech.json"
+    if level == "technician":
+        rq = "Tech.json"
+    if level == "gen":
+        rq = "General.json"
+    if level == "g":
+        rq = "General.json"
+    if level == "e":
+        rq = "Extra.json"
     if level == "tech":
         rq = "Tech.json"
     if level == "general":
         rq = "General.json"
     if level == "extra":
         rq = "Extra.json"
+
     if level is None:
           list = ['Tech.json','General.json','Extra.json']
           rq = random.choice(list)
@@ -140,7 +150,8 @@ async def rq(ctx, level : str = None):
             question = random.choice(HQS)
             #question = HQS[0]
     except FileNotFoundError:
-         await bot.say("I can't find the level you told me. Try typeing either ?rq, ?rq tech, ?rq general, ?rq extra.")
+        await bot.say(
+            "There are many ways to call up certain qustions pools. Try ?rq t, g, or e. To see all the questions pools type just !rq")
          return
     embed = discord.Embed(title=question['number'], colour=0x2dc614)
     embed = embed.add_field(name="Question:", value=question["text"], inline=False)
@@ -156,6 +167,7 @@ async def rq(ctx, level : str = None):
 
 @bot.command(pass_context=True)
 async def rqa(ctx):
+    '''Returns the answer to question asked.'''
     global lastq
     await bot.say(lastq[ctx.message.channel.id])
 
