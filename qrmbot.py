@@ -14,6 +14,7 @@ description = '''QRM'''
 pfx = '?'
 
 bot = commands.Bot(command_prefix=pfx, description=description)
+lastq = {}
 
 @bot.event
 async def on_ready():
@@ -119,6 +120,62 @@ async def plan(ctx):
     '''Posts an image of the US Frequency Allocations'''
     await bot.send_file(ctx.message.channel, 'band-chart.png')
 
+@bot.command(aliases=['randomq'], pass_context=True)
+async def rq(ctx, level: str = None):
+    '''Gets a random question from the Technician/General/Extra question pools'''
+
+    selected_pool = None
+    try:
+        level = level.lower()
+    except AttributeError:  # no level given (it's None)
+        pass
+
+    if level == "t":
+        selected_pool = tech_pool
+    if level == "technician":
+        selected_pool = tech_pool
+    if level == "tech":
+        selected_pool = tech_pool
+
+    if level == "gen":
+        selected_pool = gen_pool
+    if level == "g":
+        selected_pool = gen_pool
+    if level == "general":
+        selected_pool = gen_pool
+
+    if level == "e":
+        selected_pool = extra_pool
+    if level == "extra":
+        selected_pool = extra_pool
+
+    if (level is None) or (level == "all"):  # no pool given or user wants all, so pick a random pool and use that
+        selected_pool = random.choice([tech_pool, gen_pool, extra_pool])
+    if (level is not None) and (selected_pool is None):  # unrecognized pool given by user
+        await bot.say("The question pool you gave was unrecognized. " +
+                      "There are many ways to call up certain question pools- try ?rq t, g, or e. " +
+                      "(Note that only the US question pools are available.)")
+        return
+
+    question = random.choice(selected_pool)
+    embed = discord.Embed(title=question['number'], colour=0x2dc614)
+    embed = embed.add_field(name="Question:", value=question["text"], inline=False)
+    embed = embed.add_field(name="Answers:", value=
+                            "**A:** " + question["answers"][0] +
+                            "\n**B:** " + question["answers"][1] +
+                            "\n**C:** " + question["answers"][2] +
+                            "\n**D:** " + question["answers"][3], inline=False)
+    embed = embed.add_field(name="Answer:", value="Type _?rqa_ for answer", inline=False)
+    global lastq
+    lastq[ctx.message.channel.id] = question["answer"]
+    await bot.say(embed=embed)
+
+@bot.command(pass_context=True)
+async def rqa(ctx):
+    '''Returns the answer to question asked.'''
+    global lastq
+    await bot.say(lastq[ctx.message.channel.id])
+
 #########################
 
 WORDS = open('words').read().splitlines()
@@ -131,13 +188,22 @@ with open('cty.json') as ctyfile:
 
 with open('morse.json') as morse_file:
     ascii2morse = json.load(morse_file)
-    morse2ascii = {v:k for k,v in ascii2morse.items()}
+    morse2ascii = {v: k for k, v in ascii2morse.items()}
 
 with open('qcodes.json') as qcode_file:
     qcodes = json.load(qcode_file)
 
 with open('secrets.json') as secrets_file:
     secrets = json.load(secrets_file)
+
+with open("Tech.json") as f:
+    tech_pool = json.load(f)
+
+with open("General.json") as f:
+    gen_pool = json.load(f)
+
+with open("Extra.json") as f:
+    extra_pool = json.load(f)
 
 bot.run(secrets['token'])
 
