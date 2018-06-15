@@ -130,23 +130,13 @@ async def rq(ctx, level: str = None):
     except AttributeError:  # no level given (it's None)
         pass
 
-    if level == "t":
-        selected_pool = tech_pool
-    if level == "technician":
-        selected_pool = tech_pool
-    if level == "tech":
+    if level in ["t", "technician", "tech"]:
         selected_pool = tech_pool
 
-    if level == "gen":
-        selected_pool = gen_pool
-    if level == "g":
-        selected_pool = gen_pool
-    if level == "general":
+    if level in ["g", "gen", "general"]:
         selected_pool = gen_pool
 
-    if level == "e":
-        selected_pool = extra_pool
-    if level == "extra":
+    if level in ["e", "extra"]:
         selected_pool = extra_pool
 
     if (level is None) or (level == "all"):  # no pool given or user wants all, so pick a random pool and use that
@@ -167,14 +157,24 @@ async def rq(ctx, level: str = None):
                             "\n**D:** " + question["answers"][3], inline=False)
     embed = embed.add_field(name="Answer:", value="Type _?rqa_ for answer", inline=False)
     global lastq
-    lastq[ctx.message.channel.id] = question["answer"]
+    lastq[ctx.message.channel.id] = (question['number'], question["answer"])
     await bot.say(embed=embed)
 
 @bot.command(pass_context=True)
-async def rqa(ctx):
-    '''Returns the answer to question asked.'''
+async def rqa(ctx, ans : str = None):
+    '''(Optional argument: your answer) Returns the answer to question asked.'''
     global lastq
-    await bot.say(lastq[ctx.message.channel.id])
+    correct_ans = lastq[ctx.message.channel.id][1]
+    q_num = lastq[ctx.message.channel.id][0]
+    if ans is not None:
+        ans = ans.upper()
+        if ans == correct_ans:
+            result = f"Correct! The answer to {q_num} was **{correct_ans}**."
+        else:
+            result = f"Incorrect. The answer to {q_num} was **{correct_ans}**, not **{ans}**."
+    else:
+        result = f"The correct answer to {q_num} was **{correct_ans}**."
+    await bot.say(result)
 
 #########################
 
