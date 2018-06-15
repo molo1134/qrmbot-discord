@@ -124,9 +124,11 @@ async def plan(ctx):
 async def rq(ctx, level: str = None):
     '''Gets a random question from the Technician/General/Extra question pools'''
 
-    # we'll set the pool now, so if the user didn't provide one we don't have to make a special case for that later
-    selected_pool = random.choice([tech_pool, gen_pool, extra_pool])
-    level = level.lower()
+    selected_pool = None
+    try:
+        level = level.lower()
+    except AttributeError:  # no level given (it's None)
+        pass
 
     if level == "t":
         selected_pool = tech_pool
@@ -146,6 +148,14 @@ async def rq(ctx, level: str = None):
         selected_pool = extra_pool
     if level == "extra":
         selected_pool = extra_pool
+
+    if (level is None) or (level == "all"):  # no pool given or user wants all, so pick a random pool and use that
+        selected_pool = random.choice([tech_pool, gen_pool, extra_pool])
+    if (level is not None) and (selected_pool is None):  # unrecognized pool given by user
+        await bot.say("The question pool you gave was unrecognized. " +
+                      "There are many ways to call up certain question pools- try ?rq t, g, or e. " +
+                      "(Note that only the US question pools are available.)")
+        return
 
     question = random.choice(selected_pool)
     embed = discord.Embed(title=question['number'], colour=0x2dc614)
