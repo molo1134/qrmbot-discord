@@ -1,0 +1,4 @@
+requests==2.19.1
+discord.py==0.16.12
+feedparser==5.2.1
+discord==0.0.2
