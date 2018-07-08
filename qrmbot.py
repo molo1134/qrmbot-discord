@@ -8,7 +8,6 @@ import logging
 import random
 from datetime import datetime
 from cty_json import genCtyJson
-from fuzzywuzzy import process
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,27 +95,34 @@ async def ae7q(call : str):
 @bot.command(aliases=['dx'])
 async def dxcc(q : str):
     '''Gets info about a prefix. Alias: dx'''
+    noMatch = True
+    qMatch = None
     q = q.upper()
     if q != 'LAST_UPDATED':
-        qMatch = process.extractOne(q, CTY_list)[0]
-        if qMatch is not None:
-            d = CTY[qMatch]
-            prefix = qMatch
-            entity = d['entity']
-            cqzone = d['cq']
-            ituzone = d['itu']
-            continent = d['continent']
-            tz = d['tz']
-            if tz > 0:
-                tz = '+' + str(tz)
+        while noMatch:
+            if q in CTY_list:
+                qMatch = q
+                noMatch = False
+            else:
+                q = q[:-1]
+            if qMatch is not None:
+                d = CTY[qMatch]
+                prefix = qMatch
+                entity = d['entity']
+                cqzone = d['cq']
+                ituzone = d['itu']
+                continent = d['continent']
+                tz = d['tz']
+                if tz > 0:
+                    tz = '+' + str(tz)
 
-            res = f'''**{prefix}:** {entity}
+                res = f'''**{prefix}:** {entity}
     *CQ Zone:* {cqzone}
     *ITU Zone:* {ituzone}
     *Continent:* {continent}
     *Time Zone:* UTC{tz}'''
-        else:
-            res = f'Prefix {q} not found'
+            else:
+                res = f'Prefix {q} not found'
     else:
         updatedDate =  CTY['last_updated'][0:4] + '-'
         updatedDate += CTY['last_updated'][4:6] + '-'

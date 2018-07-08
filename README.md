@@ -17,3 +17,20 @@ Add a file `secrets.json` with the contents:
 }
 ```
 
+## Deployment
+
+Once `secrets.json` has been added, qrmbot can be deployed in Docker:
+
+```
+$ cd qrmbot_directory
+$ docker build -t qrmbot .
+$ docker run -d --rm --name qrmbot qrmbot
+```
+
+To restart:
+
+```
+$ docker stop qrmbot
+$ docker run -d --rm --name qrmbot qrmbot
+```
+
