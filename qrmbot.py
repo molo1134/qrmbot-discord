@@ -189,15 +189,12 @@ def updateCty():
     global CTY
     global CTY_list
     while True:
-        print('starting update')
+        print('Checking for CTY update...')
         try:
             firstRun
         except NameError:
             firstRun = True
-            print('first time', firstRun)
-        print('asdjklfskldfjkl')
         regen = genCtyJson()
-        print(regen)
         if regen or firstRun:
             with open('cty.json') as ctyfile:
                 print('Reloading CTY JSON data...')
