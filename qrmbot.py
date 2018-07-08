@@ -98,6 +98,7 @@ async def dxcc(q : str):
     noMatch = True
     qMatch = None
     q = q.upper()
+    q0 = q
     if q != 'LAST_UPDATED':
         while noMatch:
             if q in CTY_list:
@@ -105,6 +106,8 @@ async def dxcc(q : str):
                 noMatch = False
             else:
                 q = q[:-1]
+                if len(q) == 0:
+                    noMatch = False
             if qMatch is not None:
                 d = CTY[qMatch]
                 prefix = qMatch
@@ -122,7 +125,7 @@ async def dxcc(q : str):
     *Continent:* {continent}
     *Time Zone:* UTC{tz}'''
             else:
-                res = f'Prefix {q} not found'
+                res = f'Prefix {q0} not found'
     else:
         updatedDate =  CTY['last_updated'][0:4] + '-'
         updatedDate += CTY['last_updated'][4:6] + '-'
