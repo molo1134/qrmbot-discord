@@ -30,7 +30,6 @@ $ docker run -d --rm --name qrmbot qrmbot
 To restart:
 
 ```
-$ docker stop qrmbot
-$ docker run -d --rm --name qrmbot qrmbot
+$ docker stop qrmbot && docker run -d --rm --name qrmbot qrmbot
 ```
 
