@@ -7,6 +7,7 @@ import json
 import logging
 import random
 from datetime import datetime
+from cty_json import genCtyJson
 
 logging.basicConfig(level=logging.INFO)
 
@@ -183,11 +184,31 @@ async def rqa(ctx, ans : str = None):
 
 WORDS = open('words').read().splitlines()
 
-with open('cty.json') as ctyfile:
-    CTY = json.load(ctyfile)
-    CTY_list = list(CTY.keys())
-    CTY_list.sort()
-    CTY_list.sort(key=len, reverse=True)
+@asyncio.coroutine
+def updateCty():
+    global CTY
+    global CTY_list
+    while True:
+        print('starting update')
+        try:
+            firstRun
+        except NameError:
+            firstRun = True
+            print('first time', firstRun)
+        print('asdjklfskldfjkl')
+        regen = genCtyJson()
+        print(regen)
+        if regen or firstRun:
+            with open('cty.json') as ctyfile:
+                print('Reloading CTY JSON data...')
+                CTY = json.load(ctyfile)
+                CTY_list = list(CTY.keys())
+                CTY_list.sort()
+                CTY_list.sort(key=len, reverse=True)
+            firstRun = False
+        yield from asyncio.sleep(60*60*24)
+
+ctyTask = asyncio.Task(updateCty())
 
 with open('morse.json') as morse_file:
     ascii2morse = json.load(morse_file)

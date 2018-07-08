@@ -24,11 +24,16 @@ def genCtyJson():
     try:
         feed = feedparser.parse('http://www.country-files.com/category/big-cty/feed/')
         updateURL = feed.entries[0]['link']
-        print(updateURL)
         dateStr = re.search(r'(\d{2}-\w+-\d{4})', updateURL).group(1).title()
-        print(dateStr)
         updateDate = datetime.strftime(datetime.strptime(dateStr, '%d-%B-%Y'), '%Y%m%d')
-        print(updateDate)
+    except:
+        print('Error parsing URL or feed')
+
+    if old_cty == updateDate:
+        print('Already up-to-date')
+        return False
+
+    try:
         dlURL = f'http://www.country-files.com/bigcty/download/bigcty-{updateDate}.zip'
         r = requests.get(dlURL)
         with open('cty.zip', 'wb') as dlFile:
@@ -41,11 +46,6 @@ def genCtyJson():
         os.remove('cty.zip')
     except:
         print('Error retrieving new cty.dat')
-
-    if old_cty == updateDate:
-        print('Already up-to-date')
-        os.remove('cty.dat')
-        return
 
     with open('cty.dat') as ctyfile:
         cty = dict()
@@ -88,7 +88,11 @@ def genCtyJson():
                         cty[prefix] = data
     with open('cty.json', 'w') as cty_json:
         json.dump(cty, cty_json)
+
     os.remove('cty.dat')
+    return True
 
 if __name__ == '__main__':
-    genCtyJson()
+    status = genCtyJson()
+    print(status)
+
