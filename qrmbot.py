@@ -6,7 +6,7 @@ import asyncio
 import json
 import logging
 import random
-import datetime
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -82,7 +82,7 @@ async def unmorse(*, msg : str):
 @bot.command(aliases=['z'])
 async def utc():
     '''Gets the current time in UTC (Alias: z)'''
-    d = datetime.datetime.utcnow()
+    d = datetime.utcnow()
     result = d.strftime('%Y-%m-%d %H:%M') + 'Z'
     await bot.say(result)
 
@@ -95,22 +95,25 @@ async def ae7q(call : str):
 async def dxcc(q : str):
     '''Gets info about a prefix. Alias: dx'''
     q = q.upper()
-    if q in CTY_list:
-        d = CTY[q]
-        prefix = q
-        entity = d['entity']
-        cqzone = d['cq']
-        ituzone = d['itu']
-        continent = d['continent']
-        tz = d['tz']
-        if tz > 0:
-            tz = '+' + str(tz)
+    if q != 'last_updated':
+        if q in CTY_list:
+            d = CTY[q]
+            prefix = q
+            entity = d['entity']
+            cqzone = d['cq']
+            ituzone = d['itu']
+            continent = d['continent']
+            tz = d['tz']
+            if tz > 0:
+                tz = '+' + str(tz)
 
-        res = f'''**{prefix}:** {entity}
+            res = f'''**{prefix}:** {entity}
     *CQ Zone:* {cqzone}
     *ITU Zone:* {ituzone}
     *Continent:* {continent}
     *Time Zone:* UTC{tz}'''
+        else:
+            res = f'Prefix {q} not found'
     else:
         res = f'Prefix {q} not found'
     await bot.say(res)

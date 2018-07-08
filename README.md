@@ -1,7 +1,13 @@
 # qrmbot-discord
 port of molo1134/qrmbot to python and discord
 
-### OAuth Token
+## Dependencies
+
+- Python 3.6
+- discord.py
+- feedparser
+
+## OAuth Token
 
 Add a file `secrets.json` with the contents:
 
