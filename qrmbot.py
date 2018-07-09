@@ -80,6 +80,22 @@ async def unmorse(*, msg : str):
         result += ' '
     await bot.say(result)
 
+@bot.command(aliases=['cww'])
+async def weight(msg : str):
+    '''Calculates the CW Weight of a callsign (Alias: cww)'''
+    msg = msg.upper()
+    weight = 0
+    for char in msg:
+        try:
+            cwChar = ascii2morse[char].replace('-', '==')
+            weight += len(cwChar) * 2 + 2
+        except:
+            res = f'Unknown character {char} in callsign'
+            await bot.say(res)
+            return
+    res = f'The CW weight of **{msg}** is **{weight}**'
+    await bot.say(res)
+
 @bot.command(aliases=['z'])
 async def utc():
     '''Gets the current time in UTC (Alias: z)'''
