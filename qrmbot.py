@@ -36,8 +36,10 @@ async def help(c : str = None):
     embed = discord.Embed(title='Commands', description=bot.description, colour=green)
     cmds = sorted(list(set(bot.commands.values())), key=lambda x:x.name)
     for cmd in cmds:
-        v = cmd.help + '\n*Aliases:* ?' +\
-                      f', {pfx}'.join(cmd.aliases).rstrip(f', {pfx}')
+        v = cmd.help
+        if len(cmd.aliases) > 0:
+            v += '\n*Aliases:* ?' +\
+                f', {pfx}'.join(cmd.aliases).rstrip(f', {pfx}')
         embed = embed.add_field(name=pfx+cmd.name, value=v, inline=False)
     await bot.say(embed=embed)
 
@@ -176,10 +178,13 @@ async def dxcc(q : str):
         embed = discord.Embed(title=res, colour=blue)
     await bot.say(embed=embed)
 
-@bot.command(pass_context=True)
-async def plan(ctx):
+@bot.command(aliases=['bands'])
+async def plan():
     '''Posts an image of the US Frequency Allocations.'''
-    await bot.send_file(ctx.message.channel, 'band-chart.png')
+    embed = discord.Embed(title='US Amateur Radio Bands',
+                colour=green)
+    embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['randomq'], pass_context=True)
 async def rq(ctx, level: str = None):
