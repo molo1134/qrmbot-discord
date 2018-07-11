@@ -11,10 +11,15 @@ from cty_json import genCtyJson
 
 logging.basicConfig(level=logging.INFO)
 
-description = '''QRM'''
+description = '''A bot with various useful ham radio-related functions.'''
 pfx = '?'
 
+green = 0x2dc614
+red = 0xc91628
+blue = 0x2044f7
+
 bot = commands.Bot(command_prefix=pfx, description=description)
+bot.remove_command('help')
 lastq = {}
 
 @bot.event
@@ -25,24 +30,36 @@ async def on_ready():
     print('------')
     await bot.change_presence(game=discord.Game(name='with Lids on 7.200'))
 
+@bot.command(aliases=['h'])
+async def help(c : str = None):
+    '''Show this message.'''
+    embed = discord.Embed(title='Commands', description=bot.description, colour=green)
+    cmds = sorted(list(set(bot.commands.values())), key=lambda x:x.name)
+    for cmd in cmds:
+        v = cmd.help + '\n*Aliases:* ?' +\
+                      f', {pfx}'.join(cmd.aliases).rstrip(f', {pfx}')
+        embed = embed.add_field(name=pfx+cmd.name, value=v, inline=False)
+    await bot.say(embed=embed)
+
 @bot.command(aliases=['x'])
 async def xkcd(num : str):
-    """Gets an xkcd by number (Alias: x)"""
-    await bot.say("http://xkcd.com/" + num)
+    '''Look up an xkcd by number.'''
+    await bot.say('http://xkcd.com/' + num)
 
 @bot.command(aliases=['q'])
 async def qcode(q : str):
-    """Look up a Q Code (Alias: q)"""
+    '''Look up a Q Code.'''
     q = q.upper()
     try:
         code = qcodes[q]
-        await bot.say(q + ' = ' + code)
+        embed = discord.Embed(title=q, description=qcodes[q], colour=green)
     except:
-        await bot.say(q + ' not found.')
+        embed = discord.Embed(title=q, description='Q Code not found', colour=red)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['phoneticize', 'phoneticise', 'phone'])
 async def phonetics(*, msg : str):
-    """Get phonetics for a word or phrase (Alias: phoneticize, phoneticise, phone)"""
+    '''Get phonetics for a word or phrase.'''
     result = ''
     for char in msg:
         if char.isalpha():
@@ -51,11 +68,12 @@ async def phonetics(*, msg : str):
         else:
             result += char
         result += ' '
-    await bot.say(result.title())
+    embed = discord.Embed(title=f'Phonetics for {msg}', description=result.title(), colour=green)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['cw'])
 async def morse(*, msg : str):
-    '''Converts ASCII to international morse code (Alias: cw)'''
+    '''Converts ASCII to international morse code.'''
     result = ''
     for char in msg.upper():
         try:
@@ -63,12 +81,14 @@ async def morse(*, msg : str):
         except:
             result += '<?>'
         result += ' '
-    await bot.say(result)
+    embed = discord.Embed(title=f'Morse Code for {msg}', description=result, colour=green)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['demorse'])
 async def unmorse(*, msg : str):
-    '''Converts international morse code to ASCII (Alias: demorse)'''
+    '''Converts international morse code to ASCII.'''
     result = ''
+    msg0 = msg
     msg = msg.split('/')
     msg = [m.split() for m in msg]
     for word in msg:
@@ -78,11 +98,12 @@ async def unmorse(*, msg : str):
             except:
                 result += '<?>'
         result += ' '
-    await bot.say(result)
+    embed = discord.Embed(title=f'ASCII for {msg0}', description=result, colour=green)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['cww'])
 async def weight(msg : str):
-    '''Calculates the CW Weight of a callsign (Alias: cww)'''
+    '''Calculates the CW Weight of a callsign.'''
     msg = msg.upper()
     weight = 0
     for char in msg:
@@ -93,24 +114,26 @@ async def weight(msg : str):
             res = f'Unknown character {char} in callsign'
             await bot.say(res)
             return
-    res = f'The CW weight of **{msg}** is **{weight}**'
-    await bot.say(res)
+    res = f'The CW weight is **{weight}**'
+    embed = discord.Embed(title=f'CW Weight of {msg}', description=res, colour=green)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['z'])
 async def utc():
-    '''Gets the current time in UTC (Alias: z)'''
+    '''Gets the current time in UTC.'''
     d = datetime.utcnow()
-    result = d.strftime('%Y-%m-%d %H:%M') + 'Z'
-    await bot.say(result)
+    result = '**' + d.strftime('%Y-%m-%d %H:%M') + 'Z**'
+    embed = discord.Embed(title='The current time is:', description=result, colour=green)
+    await bot.say(embed=embed)
 
 @bot.command(aliases=['ae'])
 async def ae7q(call : str):
-    '''Links to info about a callsign from AE7Q. Alias: ae'''
+    '''Links to info about a callsign from AE7Q.'''
     await bot.say(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
 
 @bot.command(aliases=['dx'])
 async def dxcc(q : str):
-    '''Gets info about a prefix. Alias: dx'''
+    '''Gets info about a prefix.'''
     noMatch = True
     qMatch = None
     q = q.upper()
@@ -140,23 +163,27 @@ async def dxcc(q : str):
     *ITU Zone:* {ituzone}
     *Continent:* {continent}
     *Time Zone:* UTC{tz}'''
+                clr = green
             else:
                 res = f'Prefix {q0} not found'
+                clr = red
+        embed = discord.Embed(title=f'DXCC Info for {q0}', description=res, colour=clr)
     else:
         updatedDate =  CTY['last_updated'][0:4] + '-'
         updatedDate += CTY['last_updated'][4:6] + '-'
         updatedDate += CTY['last_updated'][6:8]
         res = f'CTY.DAT last updated on {updatedDate}'
-    await bot.say(res)
+        embed = discord.Embed(title=res, colour=blue)
+    await bot.say(embed=embed)
 
 @bot.command(pass_context=True)
 async def plan(ctx):
-    '''Posts an image of the US Frequency Allocations'''
+    '''Posts an image of the US Frequency Allocations.'''
     await bot.send_file(ctx.message.channel, 'band-chart.png')
 
 @bot.command(aliases=['randomq'], pass_context=True)
 async def rq(ctx, level: str = None):
-    '''Gets a random question from the Technician/General/Extra question pools'''
+    '''Gets a random question from the Technician, General, and/or Extra question pools.'''
 
     selected_pool = None
     try:
@@ -164,51 +191,54 @@ async def rq(ctx, level: str = None):
     except AttributeError:  # no level given (it's None)
         pass
 
-    if level in ["t", "technician", "tech"]:
+    if level in ['t', 'technician', 'tech']:
         selected_pool = tech_pool
 
-    if level in ["g", "gen", "general"]:
+    if level in ['g', 'gen', 'general']:
         selected_pool = gen_pool
 
-    if level in ["e", "extra"]:
+    if level in ['e', 'extra']:
         selected_pool = extra_pool
 
-    if (level is None) or (level == "all"):  # no pool given or user wants all, so pick a random pool and use that
+    if (level is None) or (level == 'all'):  # no pool given or user wants all, so pick a random pool and use that
         selected_pool = random.choice([tech_pool, gen_pool, extra_pool])
     if (level is not None) and (selected_pool is None):  # unrecognized pool given by user
-        await bot.say("The question pool you gave was unrecognized. " +
-                      "There are many ways to call up certain question pools- try ?rq t, g, or e. " +
-                      "(Note that only the US question pools are available.)")
+        await bot.say('The question pool you gave was unrecognized. ' +
+                      'There are many ways to call up certain question pools - try ?rq t, g, or e. ' +
+                      '(Note that only the US question pools are available).')
         return
 
     question = random.choice(selected_pool)
-    embed = discord.Embed(title=question['number'], colour=0x2dc614)
-    embed = embed.add_field(name="Question:", value=question["text"], inline=False)
-    embed = embed.add_field(name="Answers:", value=
-                            "**A:** " + question["answers"][0] +
-                            "\n**B:** " + question["answers"][1] +
-                            "\n**C:** " + question["answers"][2] +
-                            "\n**D:** " + question["answers"][3], inline=False)
-    embed = embed.add_field(name="Answer:", value="Type _?rqa_ for answer", inline=False)
+    embed = discord.Embed(title=question['number'], colour=green)
+    embed = embed.add_field(name='Question:', value=question['text'], inline=False)
+    embed = embed.add_field(name='Answers:', value=
+                            '**A:** ' + question['answers'][0] +
+                            '\n**B:** ' + question['answers'][1] +
+                            '\n**C:** ' + question['answers'][2] +
+                            '\n**D:** ' + question['answers'][3], inline=False)
+    embed = embed.add_field(name='Answer:', value='Type _?rqa_ for answer', inline=False)
     global lastq
-    lastq[ctx.message.channel.id] = (question['number'], question["answer"])
+    lastq[ctx.message.channel.id] = (question['number'], question['answer'])
     await bot.say(embed=embed)
 
 @bot.command(pass_context=True)
 async def rqa(ctx, ans : str = None):
-    '''(Optional argument: your answer) Returns the answer to question asked.'''
+    '''Returns the answer to question last asked (Optional argument: your answer).'''
     global lastq
     correct_ans = lastq[ctx.message.channel.id][1]
     q_num = lastq[ctx.message.channel.id][0]
     if ans is not None:
         ans = ans.upper()
         if ans == correct_ans:
-            result = f"Correct! The answer to {q_num} was **{correct_ans}**."
+            result = f'Correct! The answer to {q_num} was **{correct_ans}**.'
+            embed = discord.Embed(title=f'{q_num} Answer', description=result, colour=green)
         else:
-            result = f"Incorrect. The answer to {q_num} was **{correct_ans}**, not **{ans}**."
+            result = f'Incorrect. The answer to {q_num} was **{correct_ans}**, not **{ans}**.'
+            embed = discord.Embed(title=f'{q_num} Answer', description=result, colour=red)
     else:
-        result = f"The correct answer to {q_num} was **{correct_ans}**."
-    await bot.say(result)
+        result = f'The correct answer to {q_num} was **{correct_ans}**.'
+        embed = discord.Embed(title=f'{q_num} Answer', description=result, colour=blue)
+    await bot.say(embed=embed)
 
 #########################
 
@@ -247,13 +277,13 @@ with open('qcodes.json') as qcode_file:
 with open('secrets.json') as secrets_file:
     secrets = json.load(secrets_file)
 
-with open("Tech.json") as f:
+with open('Tech.json') as f:
     tech_pool = json.load(f)
 
-with open("General.json") as f:
+with open('General.json') as f:
     gen_pool = json.load(f)
 
-with open("Extra.json") as f:
+with open('Extra.json') as f:
     extra_pool = json.load(f)
 
 bot.run(secrets['token'])
