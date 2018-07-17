@@ -179,7 +179,7 @@ async def dxcc(q : str):
     await bot.say(embed=embed)
 
 @bot.command(aliases=['bands'])
-async def plan(msg : str = None):
+async def plan(msg : str = ''):
     '''Posts an image of Frequency Allocations.'''
     if msg.lower() == 'cn':
 	    embed = discord.Embed(title='Chinese Amateur Radio Bands',
