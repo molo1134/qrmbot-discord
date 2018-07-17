@@ -179,11 +179,16 @@ async def dxcc(q : str):
     await bot.say(embed=embed)
 
 @bot.command(aliases=['bands'])
-async def plan():
-    '''Posts an image of the US Frequency Allocations.'''
-    embed = discord.Embed(title='US Amateur Radio Bands',
-                colour=green)
-    embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
+async def plan(msg : str = None):
+    '''Posts an image of Frequency Allocations.'''
+    if msg.lower() == 'cn':
+	    embed = discord.Embed(title='Chinese Amateur Radio Bands',
+			colour=green)
+	    embed.set_image(url='https://cdn.discordapp.com/attachments/364489754839875586/468770333223157791/Chinese_Amateur_Radio_Bands.png')
+    else:
+	    embed = discord.Embed(title='US Amateur Radio Bands',
+			colour=green)
+	    embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
     await bot.say(embed=embed)
 
 @bot.command(aliases=['randomq'], pass_context=True)
