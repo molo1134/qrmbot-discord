@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 description = '''A bot with various useful ham radio-related functions.'''
 pfx = '?'
+lastq = {}
 
 green = 0x2dc614
 red = 0xc91628
@@ -20,7 +21,6 @@ blue = 0x2044f7
 
 bot = commands.Bot(command_prefix=pfx, description=description)
 bot.remove_command('help')
-lastq = {}
 
 @bot.event
 async def on_ready():
@@ -29,6 +29,20 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     await bot.change_presence(game=discord.Game(name='with Lids on 7.200'))
+
+@bot.event
+async def on_message(message):
+    try:
+        print(message.content)
+        content = message.content.split()
+        print(content)
+        content[0] = content[0].lower()
+        print(content)
+        message.content = ' '.join(content)
+        print(message.content)
+    except:
+        pass
+    await bot.process_commands(message)
 
 @bot.command(aliases=['h'])
 async def help(c : str = None):
