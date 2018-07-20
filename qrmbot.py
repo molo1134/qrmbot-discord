@@ -199,6 +199,10 @@ async def plan(msg : str = ''):
 	    embed = discord.Embed(title='Chinese Amateur Radio Bands',
 			colour=green)
 	    embed.set_image(url='https://cdn.discordapp.com/attachments/364489754839875586/468770333223157791/Chinese_Amateur_Radio_Bands.png')
+    else if msg.lower() == 'ca':
+	    embed = discord.Embed(title='Canadian Amateur Radio Bands',
+			colour=green)
+	    embed.set_image(url='https://cdn.discordapp.com/attachments/448839119934717953/469972377778782208/RAC_Bandplan_December_1_2015-1.png')
     else:
 	    embed = discord.Embed(title='US Amateur Radio Bands',
 			colour=green)
