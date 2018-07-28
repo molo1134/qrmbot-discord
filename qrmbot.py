@@ -33,13 +33,9 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     try:
-        print(message.content)
         content = message.content.split()
-        print(content)
         content[0] = content[0].lower()
-        print(content)
         message.content = ' '.join(content)
-        print(message.content)
     except:
         pass
     await bot.process_commands(message)
@@ -194,11 +190,16 @@ async def dxcc(q : str):
 
 @bot.command(aliases=['bands'])
 async def plan(msg : str = ''):
-    '''Posts an image of Frequency Allocations.'''
+    '''Posts an image of Frequency Allocations.
+    Optional argument: `cn` = China, `ca` = Canada, `us` = USA.'''
     if msg.lower() == 'cn':
         embed = discord.Embed(title='Chinese Amateur Radio Bands',
             colour=green)
         embed.set_image(url='https://cdn.discordapp.com/attachments/364489754839875586/468770333223157791/Chinese_Amateur_Radio_Bands.png')
+    elif msg.lower() == 'ca':
+        embed = discord.Embed(title='Canadian Amateur Radio Bands',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/448839119934717953/469972377778782208/RAC_Bandplan_December_1_2015-1.png')
     else:
         embed = discord.Embed(title='US Amateur Radio Bands',
             colour=green)
@@ -207,16 +208,18 @@ async def plan(msg : str = ''):
 
 @bot.command()
 async def map(msg : str = ''):
-    '''Posts an image of Frequency Allocations.'''
+    '''Posts an image of Frequency Allocations.
+    Optional argument:`cq` = CQ Zones, `itu` = ITU Zones, `arrl` or `rac` =
+    ARRL/RAC sections, `us` = US Callsign Areas.'''
     if msg.lower() == 'cq':
         embed = discord.Embed(title='Worldwide CQ Zones Map',
             colour=green)
         embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856720142761985/cq-zone.png')
-    else if msg.lower() == 'itu':
+    elif msg.lower() == 'itu':
         embed = discord.Embed(title='Worldwide ITU Zones Map',
             colour=green)
         embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856796235563018/itu-zone.png')
-    else if msg.lower() == 'arrl' or msg.lower() == 'rac':
+    elif msg.lower() == 'arrl' or msg.lower() == 'rac':
         embed = discord.Embed(title='ARRL/RAC Section Map',
             colour=green)
         embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856898220064778/sections.png')
