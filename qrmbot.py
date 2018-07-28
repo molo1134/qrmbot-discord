@@ -196,13 +196,34 @@ async def dxcc(q : str):
 async def plan(msg : str = ''):
     '''Posts an image of Frequency Allocations.'''
     if msg.lower() == 'cn':
-	    embed = discord.Embed(title='Chinese Amateur Radio Bands',
-			colour=green)
-	    embed.set_image(url='https://cdn.discordapp.com/attachments/364489754839875586/468770333223157791/Chinese_Amateur_Radio_Bands.png')
+        embed = discord.Embed(title='Chinese Amateur Radio Bands',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/364489754839875586/468770333223157791/Chinese_Amateur_Radio_Bands.png')
     else:
-	    embed = discord.Embed(title='US Amateur Radio Bands',
-			colour=green)
-	    embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
+        embed = discord.Embed(title='US Amateur Radio Bands',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
+    await bot.say(embed=embed)
+
+@bot.command()
+async def map(msg : str = ''):
+    '''Posts an image of Frequency Allocations.'''
+    if msg.lower() == 'cq':
+        embed = discord.Embed(title='Worldwide CQ Zones Map',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856720142761985/cq-zone.png')
+    else if msg.lower() == 'itu':
+        embed = discord.Embed(title='Worldwide ITU Zones Map',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856796235563018/itu-zone.png')
+    else if msg.lower() == 'arrl' or msg.lower() == 'rac':
+        embed = discord.Embed(title='ARRL/RAC Section Map',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856898220064778/sections.png')
+    else:
+        embed = discord.Embed(title='US Callsign Areas',
+            colour=green)
+        embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856506476265497/WASmap_Color.png')
     await bot.say(embed=embed)
 
 @bot.command(aliases=['randomq'], pass_context=True)
