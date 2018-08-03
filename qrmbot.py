@@ -70,7 +70,7 @@ async def qcode(q : str):
         embed = discord.Embed(title=q, description='Q Code not found', colour=red)
     await bot.say(embed=embed)
 
-@bot.command(aliases=['phoneticize', 'phoneticise', 'phone'])
+@bot.command(aliases=['ph', 'phoneticize', 'phoneticise', 'phone'])
 async def phonetics(*, msg : str):
     '''Get phonetics for a word or phrase.'''
     result = ''
