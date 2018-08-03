@@ -5,6 +5,7 @@ from discord.ext import commands
 import asyncio
 import json
 import logging
+import time
 import random
 from datetime import datetime
 from cty_json import genCtyJson
@@ -287,6 +288,33 @@ async def rqa(ctx, ans : str = None):
         result = f'The correct answer to {q_num} was **{correct_ans}**.'
         embed = discord.Embed(title=f'{q_num} Answer', description=result, colour=blue)
     await bot.say(embed=embed)
+
+@bot.command()
+async def grid(lat : str, lon : str):
+    '''Calculates the grid square for latitude and longitude coordinates.
+Usage: `?grid <lat> <lon>`
+`lat` and `lon` are decimal coordinates, with negative being latitude South and longitude West.'''
+    grid = "**"
+    try:
+        latf = float(lat) + 90
+        lonf = float(lon) + 180
+        if 0 <= latf <= 180 and 0 <= lonf <= 360:
+            grid += chr(ord('A') + int(lonf / 20))
+            grid += chr(ord('A') + int(latf / 10))
+            grid += chr(ord('0') + int((lonf % 20)/2))
+            grid += chr(ord('0') + int((latf % 10)/1))
+            grid += chr(ord('a') + int((lonf - (int(lonf/2)*2)) / (5/60)))
+            grid += chr(ord('a') + int((latf - (int(latf/1)*1)) / (2.5/60)))
+            grid += "**"
+            embed = discord.Embed(title=f'Maidenhead Grid Locator for {float(lat):.6f}, {float(lon):.6f}',
+                    description=grid, colour=green)
+        else:
+            raise ValueError('Out of range.')
+    except Exception as e:
+        msg = f'Error generating grid square for {lat}, {lon}.'
+        embed = discord.Embed(title=msg, description=str(e), colour=red)
+    await bot.say(embed=embed)
+
 
 #########################
 
