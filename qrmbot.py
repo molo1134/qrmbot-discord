@@ -144,6 +144,11 @@ async def ae7q(call : str):
     '''Links to info about a callsign from AE7Q.'''
     await bot.say(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
 
+@bot.command()
+async def qrz(call : str):
+    '''Links to info about a callsign from QRZ.'''
+    await bot.say(f'http://qrz.com/db/{call}')
+    
 @bot.command(aliases=['dx'])
 async def dxcc(q : str):
     '''Gets info about a prefix.'''
