@@ -320,6 +320,50 @@ Usage: `?grid <lat> <lon>`
         embed = discord.Embed(title=msg, description=str(e), colour=red)
     await bot.say(embed=embed)
 
+@bot.command(aliases=['ungrid'])
+async def loc(grid : str):
+    try:
+        grid = grid.upper()
+
+        if len(grid) < 3:
+            raise ValueError('The grid locator must be at least 4 characters long.')
+
+        if not grid[0:2].isalpha() or not grid[2:4].isdigit():
+            if len(grid) <= 4:
+                raise ValueError('The grid locator must be of the form AA##.')
+            elif len(grid) >= 6 and not grid[5:7].isalpha():
+                raise ValueError('The grid locator must be of the form AA##AA.')
+
+        lon = ((ord(grid[0]) - ord('A')) * 20) - 180;
+        lat = ((ord(grid[1]) - ord('A')) * 10) - 90;
+        lon += ((ord(grid[2]) - ord('0')) * 2);
+        lat += ((ord(grid[3]) - ord('0')) * 1);
+
+        if len(grid) >= 6:
+            # have subsquares
+            lon += ((ord(grid[4])) - ord('A')) * (5/60);
+            lat += ((ord(grid[5])) - ord('A')) * (2.5/60);
+            # move to center of subsquare
+            lon += (2.5/60);
+            lat += (1.25/60);
+            # not too precise
+            embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
+                    description=f'**{lat:.5f}, {lon:.5f}**', colour=green,
+                    url=f'https://www.google.com/maps/place/{lat:.5f},{lon:.5f}/@{lat:.5f},{lon:.5f},13z')
+        else:
+            # move to center of square
+            lon += 1;
+            lat += 0.5;
+            # even less precise
+            embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
+                    description=f'**{lat:.1f}, {lon:.1f}**', colour=green,
+                    url=f'https://www.google.com/maps/place/{lat:.1f},{lon:.1f}/@{lat:.1f},{lon:.1f},10z')
+    except Exception as e:
+        msg = f'Error generating latitude and longitude for grid {grid}.'
+        embed = discord.Embed(title=msg, description=str(e), colour=red)
+
+    await bot.say(embed=embed)
+
 
 #########################
 
