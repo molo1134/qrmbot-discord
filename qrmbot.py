@@ -149,7 +149,16 @@ async def ae7q(call : str):
 async def qrz(call : str):
     '''Links to info about a callsign from QRZ.'''
     await bot.say(f'http://qrz.com/db/{call}')
-    
+
+@bot.command()
+async def sat(sat : str, grid1 : str, grid2 : str = None):
+    '''Links to info about satellite passes on satmatch.com.
+Usage: `?sat sat_name grid1 grid2`'''
+    if grid2 is None or grid2 == '':
+        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}')
+    else:
+        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}/obs2/{grid2}')
+
 @bot.command(aliases=['dx'])
 async def dxcc(q : str):
     '''Gets info about a prefix.'''
@@ -333,11 +342,12 @@ If two grid squares are given, the distance and azimuth between them is calculat
             if len(grid) >= 6:
                 embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
                         description=f'**{loc[0]:.5f}, {loc[1]:.5f}**', colour=green,
-                        url=f'https://www.google.com/maps/place/{loc[0]:.5f},{loc[1]:.5f}/@{loc[0]:.5f},{loc[1]:.5f},13z')
+                        url=f'https://www.openstreetmap.org/#map=13/{loc[0]:.5f}/{loc[1]:.5f}')
+
             else:
                 embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
                         description=f'**{loc[0]:.1f}, {loc[1]:.1f}**', colour=green,
-                        url=f'https://www.google.com/maps/place/{loc[0]:.1f},{loc[1]:.1f}/@{loc[0]:.1f},{loc[1]:.1f},10z')
+                        url=f'https://www.openstreetmap.org/#map=10/{loc[0]:.1f}/{loc[1]:.1f}')
         except Exception as e:
             msg = f'Error generating latitude and longitude for grid {grid}.'
             embed = discord.Embed(title=msg, description=str(e), colour=red)
