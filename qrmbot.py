@@ -7,6 +7,7 @@ import json
 import logging
 import time
 import random
+import math
 from datetime import datetime
 from cty_json import genCtyJson
 
@@ -42,7 +43,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command(aliases=['h'])
-async def help(c : str = None):
+async def help():
     '''Show this message.'''
     embed = discord.Embed(title='Commands', description=bot.description, colour=green)
     cmds = sorted(list(set(bot.commands.values())), key=lambda x:x.name)
@@ -321,46 +322,55 @@ Usage: `?grid <lat> <lon>`
     await bot.say(embed=embed)
 
 @bot.command(aliases=['ungrid'])
-async def loc(grid : str):
-    try:
-        grid = grid.upper()
+async def loc(grid : str, grid2 : str = None):
+    '''Calculates the latitude and longitude for the center of a grid square.
+If two grid squares are given, the distance and azimuth between them is calculated.'''
+    if grid2 is None or grid2 == '':
+        try:
+            grid = grid.upper()
+            loc = getCoords(grid)
 
-        if len(grid) < 3:
-            raise ValueError('The grid locator must be at least 4 characters long.')
+            if len(grid) >= 6:
+                embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
+                        description=f'**{loc[0]:.5f}, {loc[1]:.5f}**', colour=green,
+                        url=f'https://www.google.com/maps/place/{loc[0]:.5f},{loc[1]:.5f}/@{loc[0]:.5f},{loc[1]:.5f},13z')
+            else:
+                embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
+                        description=f'**{loc[0]:.1f}, {loc[1]:.1f}**', colour=green,
+                        url=f'https://www.google.com/maps/place/{loc[0]:.1f},{loc[1]:.1f}/@{loc[0]:.1f},{loc[1]:.1f},10z')
+        except Exception as e:
+            msg = f'Error generating latitude and longitude for grid {grid}.'
+            embed = discord.Embed(title=msg, description=str(e), colour=red)
+    else:
+        R = 6371
+        try:
+            grid = grid.upper()
+            grid2 = grid2.upper()
+            loc = getCoords(grid)
+            loc2 = getCoords(grid2)
+            # Haversine formula
+            dLat = math.radians(loc2[0] - loc[0])
+            dLon = math.radians(loc2[1] - loc[1])
+            a = math.sin(dLat/2) ** 2 +\
+                math.cos(math.radians(loc[0])) * math.cos(math.radians(loc2[0])) *\
+                math.sin(dLon/2) ** 2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+            d = R * c
+            d_mi = 0.6213712 * d
 
-        if not grid[0:2].isalpha() or not grid[2:4].isdigit():
-            if len(grid) <= 4:
-                raise ValueError('The grid locator must be of the form AA##.')
-            elif len(grid) >= 6 and not grid[5:7].isalpha():
-                raise ValueError('The grid locator must be of the form AA##AA.')
+            # Bearing
+            y = math.sin(math.radians(loc2[1]-loc[1])) * math.cos(math.radians(loc2[0]))
+            x = math.cos(math.radians(loc[0])) * math.sin(math.radians(loc2[0])) -\
+                math.sin(math.radians(loc[0])) * math.cos(math.radians(loc2[0])) *\
+                math.cos(math.radians(loc2[1] - loc[1]))
+            bearing = ( math.degrees(math.atan2(y, x)) + 360 ) % 360
 
-        lon = ((ord(grid[0]) - ord('A')) * 20) - 180;
-        lat = ((ord(grid[1]) - ord('A')) * 10) - 90;
-        lon += ((ord(grid[2]) - ord('0')) * 2);
-        lat += ((ord(grid[3]) - ord('0')) * 1);
-
-        if len(grid) >= 6:
-            # have subsquares
-            lon += ((ord(grid[4])) - ord('A')) * (5/60);
-            lat += ((ord(grid[5])) - ord('A')) * (2.5/60);
-            # move to center of subsquare
-            lon += (2.5/60);
-            lat += (1.25/60);
-            # not too precise
-            embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
-                    description=f'**{lat:.5f}, {lon:.5f}**', colour=green,
-                    url=f'https://www.google.com/maps/place/{lat:.5f},{lon:.5f}/@{lat:.5f},{lon:.5f},13z')
-        else:
-            # move to center of square
-            lon += 1;
-            lat += 0.5;
-            # even less precise
-            embed = discord.Embed(title=f'Latitude and Longitude for {grid}',
-                    description=f'**{lat:.1f}, {lon:.1f}**', colour=green,
-                    url=f'https://www.google.com/maps/place/{lat:.1f},{lon:.1f}/@{lat:.1f},{lon:.1f},10z')
-    except Exception as e:
-        msg = f'Error generating latitude and longitude for grid {grid}.'
-        embed = discord.Embed(title=msg, description=str(e), colour=red)
+            des = f'**Distance:** {d:.1f} km ({d_mi:.1f} mi)\n**Bearing:** {bearing:.1f}°'
+            embed = discord.Embed(title=f'Great Circle Distance and Bearing from {grid} to {grid2}',
+                    description=des, colour=green)
+        except Exception as e:
+            msg = f'Error generating great circle distance and bearing from {grid} and {grid2}.'
+            embed = discord.Embed(title=msg, description=str(e), colour=red)
 
     await bot.say(embed=embed)
 
@@ -391,6 +401,35 @@ def updateCty():
         yield from asyncio.sleep(60*60*24)
 
 ctyTask = asyncio.Task(updateCty())
+
+def getCoords(grid : str):
+    if len(grid) < 3:
+        raise ValueError('The grid locator must be at least 4 characters long.')
+
+    if not grid[0:2].isalpha() or not grid[2:4].isdigit():
+        if len(grid) <= 4:
+            raise ValueError('The grid locator must be of the form AA##.')
+        elif len(grid) >= 6 and not grid[5:7].isalpha():
+            raise ValueError('The grid locator must be of the form AA##AA.')
+
+    lon = ((ord(grid[0]) - ord('A')) * 20) - 180;
+    lat = ((ord(grid[1]) - ord('A')) * 10) - 90;
+    lon += ((ord(grid[2]) - ord('0')) * 2);
+    lat += ((ord(grid[3]) - ord('0')) * 1);
+
+    if len(grid) >= 6:
+        # have subsquares
+        lon += ((ord(grid[4])) - ord('A')) * (5/60);
+        lat += ((ord(grid[5])) - ord('A')) * (2.5/60);
+        # move to center of subsquare
+        lon += (2.5/60);
+        lat += (1.25/60);
+        return (lat, lon)
+    else:
+        # move to center of square
+        lon += 1;
+        lat += 0.5;
+        return (lat, lon)
 
 with open('morse.json') as morse_file:
     ascii2morse = json.load(morse_file)
