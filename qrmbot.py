@@ -154,10 +154,11 @@ async def qrz(call : str):
 async def sat(sat : str, grid1 : str, grid2 : str = None):
     '''Links to info about satellite passes on satmatch.com.
 Usage: `?sat sat_name grid1 grid2`'''
+    now = datetime.utcnow().strftime('%Y-%m-%d%%20%H:%M')
     if grid2 is None or grid2 == '':
-        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}')
+        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}?search_start_time={now}&duration_hrs=24')
     else:
-        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}/obs2/{grid2}')
+        await bot.say(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}/obs2/{grid2}?search_start_time={now}&duration_hrs=24')
 
 @bot.command(aliases=['dx'])
 async def dxcc(q : str):
