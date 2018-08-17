@@ -38,18 +38,10 @@ async def info(ctx):
     '''Shows info about QRM.'''
     async with ctx.typing():
         embed = discord.Embed(title='About QRM', description=bot.description, colour=blue)
-        embed = embed.add_field(name='Author', value='<@!200102491231092736>', inline=False)
+        embed = embed.add_field(name='Author', value='Galen Gold, KB6EE\n<@!200102491231092736> (GaiusAurus#2539)', inline=False)
         embed = embed.add_field(name='Contributing', value='Check out the source on GitHub: https://github.com/young-amateurs-rc/qrmbot-discord', inline=False)
         embed = embed.add_field(name='License', value='QRM is released under the BSD 2-Clause License', inline=False)
         await ctx.send(embed=embed)
-
-@bot.command()
-async def restart(ctx):
-    if await bot.is_owner(ctx.message.author):
-        await ctx.send('Going QRT for a second...')
-        call(['./reload-qrm.sh'])
-    else:
-        await ctx.send('Illegal transmission! Calling Ajit Pai...')
 
 @bot.command()
 async def ping(ctx):
