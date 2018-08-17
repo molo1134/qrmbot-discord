@@ -1,4 +1,4 @@
 feedparser==5.2.1
 requests==2.19.1
-discord.py==0.16.12
+discord.py==1.0.0a0
 discord==0.0.2
