@@ -7,6 +7,7 @@ import json
 import logging
 import random
 import math
+import feedparser
 from subprocess import call
 from datetime import datetime
 from cty_json import genCtyJson
@@ -408,6 +409,22 @@ If two grid squares are given, the distance and azimuth between them is calculat
 
         await ctx.send(embed=embed)
 
+@bot.command(aliases=['cc', 'tests'])
+async def contests(ctx):
+    '''Gets info about contests upcoming in the next 8 days.'''
+
+    async with ctx.typing():
+        feed = feedparser.parse('http://www.contestcalendar.com/calendar.rss')
+
+        contests = {e['title']:(e['summary'], e['link']) for e in feed['entries']}
+
+        embed = discord.Embed(title='Contests in the Next 8 Days',
+                                url='http://www.contestcalendar.com/weeklycont.php',
+                                colour=green)
+        embed = embed.set_footer(text='Data courtesy ContestCalendar.com')
+        for c, d in contests.items():
+            embed = embed.add_field(name=c, value='\n'.join(d), inline=True)
+        await ctx.send(embed=embed)
 
 #########################
 
