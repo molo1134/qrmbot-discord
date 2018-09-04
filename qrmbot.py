@@ -243,6 +243,16 @@ async def plan(ctx, msg : str = ''):
             embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
         await ctx.send(embed=embed)
 
+@bot.command(aliases=['condx'])
+async def cond(ctx, msg : str = ''):
+    '''Posts an image of HF Band Conditions.'''
+    async with ctx.typing():
+        embed = discord.Embed(title='HF Band Conditions',
+            colour=green)
+        embed.set_image(url='https://rigreference.com/solar/img/wide')
+        embed.set_footer(text='Source: rigreference.com')
+        await ctx.send(embed=embed)
+
 @bot.command()
 async def map(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
