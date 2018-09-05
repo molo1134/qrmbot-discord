@@ -246,12 +246,7 @@ async def plan(ctx, msg : str = ''):
 @bot.command(aliases=['condx'])
 async def cond(ctx, msg : str = ''):
     '''Posts an image of HF Band Conditions.'''
-    async with ctx.typing():
-        embed = discord.Embed(title='HF Band Conditions',
-            colour=green)
-        embed.set_image(url='https://rigreference.com/solar/img/wide')
-        embed.set_footer(text='Source: rigreference.com')
-        await ctx.send(embed=embed)
+    await ctx.send('https://rigreference.com/solar/img/wide')
 
 @bot.command()
 async def map(ctx, msg : str = ''):
