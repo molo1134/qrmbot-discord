@@ -87,7 +87,7 @@ async def phonetics(ctx, *, msg : str):
     '''Get phonetics for a word or phrase.'''
     with ctx.typing():
         result = ''
-        for char in msg:
+        for char in msg.lower():
             if char.isalpha():
                 w = [word for word in WORDS if (word[0] == char)]
                 result += random.choice(w)
