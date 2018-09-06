@@ -3,6 +3,7 @@
 import discord
 from discord.ext import commands
 import asyncio
+import aiohttp, io
 import json
 import logging
 import random
@@ -246,7 +247,13 @@ async def plan(ctx, msg : str = ''):
 @bot.command(aliases=['condx'])
 async def cond(ctx, msg : str = ''):
     '''Posts an image of HF Band Conditions.'''
-    await ctx.send('https://rigreference.com/solar/img/wide')
+    with ctx.typing():
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://rigreference.com/solar/img/wide') as resp:
+                if resp.status != 200:
+                    return await ctx.send('Could not download file...')
+                data = io.BytesIO(await resp.read())
+                await ctx.send(file=discord.File(data, 'condx.png'))
 
 @bot.command()
 async def map(ctx, msg : str = ''):
