@@ -37,7 +37,7 @@ async def on_ready():
 @bot.command(aliases=['about'])
 async def info(ctx):
     '''Shows info about QRM.'''
-    async with ctx.typing():
+    with ctx.typing():
         embed = discord.Embed(title='About QRM', description=bot.description, colour=blue)
         embed = embed.add_field(name='Author', value='Galen Gold, KB6EE\n<@!200102491231092736> (GaiusAurus#2539)', inline=False)
         embed = embed.add_field(name='Contributing', value='Check out the source on GitHub: https://github.com/young-amateurs-rc/qrmbot-discord', inline=False)
@@ -46,13 +46,13 @@ async def info(ctx):
 
 @bot.command()
 async def ping(ctx):
-    async with ctx.typing():
+    with ctx.typing():
         await ctx.send(f'**Pong!** Current ping is {bot.latency*1000:.1f} ms')
 
 @bot.command(aliases=['h'])
 async def help(ctx):
     '''Show this message.'''
-    async with ctx.typing():
+    with ctx.typing():
         embed = discord.Embed(title='Commands', description=bot.description, colour=green)
         cmds = sorted(list(bot.commands), key=lambda x:x.name)
         for cmd in cmds:
@@ -66,13 +66,13 @@ async def help(ctx):
 @bot.command(aliases=['x'])
 async def xkcd(ctx, num : str):
     '''Look up an xkcd by number.'''
-    async with ctx.typing():
+    with ctx.typing():
         await ctx.send('http://xkcd.com/' + num)
 
 @bot.command(aliases=['q'])
 async def qcode(ctx, q : str):
     '''Look up a Q Code.'''
-    async with ctx.typing():
+    with ctx.typing():
         q = q.upper()
         try:
             code = qcodes[q]
@@ -84,7 +84,7 @@ async def qcode(ctx, q : str):
 @bot.command(aliases=['ph', 'phoneticize', 'phoneticise', 'phone'])
 async def phonetics(ctx, *, msg : str):
     '''Get phonetics for a word or phrase.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
         for char in msg:
             if char.isalpha():
@@ -99,7 +99,7 @@ async def phonetics(ctx, *, msg : str):
 @bot.command(aliases=['cw'])
 async def morse(ctx, *, msg : str):
     '''Converts ASCII to international morse code.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
         for char in msg.upper():
             try:
@@ -113,7 +113,7 @@ async def morse(ctx, *, msg : str):
 @bot.command(aliases=['demorse'])
 async def unmorse(ctx, *, msg : str):
     '''Converts international morse code to ASCII.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
         msg0 = msg
         msg = msg.split('/')
@@ -131,7 +131,7 @@ async def unmorse(ctx, *, msg : str):
 @bot.command(aliases=['cww'])
 async def weight(ctx, msg : str):
     '''Calculates the CW Weight of a callsign.'''
-    async with ctx.typing():
+    with ctx.typing():
         msg = msg.upper()
         weight = 0
         for char in msg:
@@ -149,7 +149,7 @@ async def weight(ctx, msg : str):
 @bot.command(aliases=['z'])
 async def utc(ctx):
     '''Gets the current time in UTC.'''
-    async with ctx.typing():
+    with ctx.typing():
         d = datetime.utcnow()
         result = '**' + d.strftime('%Y-%m-%d %H:%M') + 'Z**'
         embed = discord.Embed(title='The current time is:', description=result, colour=green)
@@ -158,20 +158,20 @@ async def utc(ctx):
 @bot.command(aliases=['ae'])
 async def ae7q(ctx, call : str):
     '''Links to info about a callsign from AE7Q.'''
-    async with ctx.typing():
+    with ctx.typing():
         await ctx.send(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
 
 @bot.command()
 async def qrz(ctx, call : str):
     '''Links to info about a callsign from QRZ.'''
-    async with ctx.typing():
+    with ctx.typing():
         await ctx.send(f'http://qrz.com/db/{call}')
 
 @bot.command()
 async def sat(ctx, sat : str, grid1 : str, grid2 : str = None):
     '''Links to info about satellite passes on satmatch.com.
 Usage: `?sat sat_name grid1 grid2`'''
-    async with ctx.typing():
+    with ctx.typing():
         now = datetime.utcnow().strftime('%Y-%m-%d%%20%H:%M')
         if grid2 is None or grid2 == '':
             await ctx.send(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}?search_start_time={now}&duration_hrs=24')
@@ -181,7 +181,7 @@ Usage: `?sat sat_name grid1 grid2`'''
 @bot.command(aliases=['dx'])
 async def dxcc(ctx, q : str):
     '''Gets info about a prefix.'''
-    async with ctx.typing():
+    with ctx.typing():
         noMatch = True
         qMatch = None
         q = q.upper()
@@ -228,7 +228,7 @@ async def dxcc(ctx, q : str):
 async def plan(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
     Optional argument: `cn` = China, `ca` = Canada, `us` = USA.'''
-    async with ctx.typing():
+    with ctx.typing():
         if msg.lower() == 'cn':
             embed = discord.Embed(title='Chinese Amateur Radio Bands',
                 colour=green)
@@ -253,7 +253,7 @@ async def map(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
     Optional argument:`cq` = CQ Zones, `itu` = ITU Zones, `arrl` or `rac` =
     ARRL/RAC sections, `us` = US Callsign Areas.'''
-    async with ctx.typing():
+    with ctx.typing():
         if msg.lower() == 'cq':
             embed = discord.Embed(title='Worldwide CQ Zones Map',
                 colour=green)
@@ -275,7 +275,7 @@ async def map(ctx, msg : str = ''):
 @bot.command(aliases=['randomq'])
 async def rq(ctx, level: str = None):
     '''Gets a random question from the Technician, General, and/or Extra question pools.'''
-    async with ctx.typing():
+    with ctx.typing():
         selected_pool = None
         try:
             level = level.lower()
@@ -315,7 +315,7 @@ async def rq(ctx, level: str = None):
 @bot.command()
 async def rqa(ctx, ans : str = None):
     '''Returns the answer to question last asked (Optional argument: your answer).'''
-    async with ctx.typing():
+    with ctx.typing():
         global lastq
         correct_ans = lastq[ctx.message.channel.id][1]
         q_num = lastq[ctx.message.channel.id][0]
@@ -337,7 +337,7 @@ async def grid(ctx, lat : str, lon : str):
     '''Calculates the grid square for latitude and longitude coordinates.
 Usage: `?grid <lat> <lon>`
 `lat` and `lon` are decimal coordinates, with negative being latitude South and longitude West.'''
-    async with ctx.typing():
+    with ctx.typing():
         grid = "**"
         try:
             latf = float(lat) + 90
@@ -363,7 +363,7 @@ Usage: `?grid <lat> <lon>`
 async def loc(ctx, grid : str, grid2 : str = None):
     '''Calculates the latitude and longitude for the center of a grid square.
 If two grid squares are given, the distance and azimuth between them is calculated.'''
-    async with ctx.typing():
+    with ctx.typing():
         if grid2 is None or grid2 == '':
             try:
                 grid = grid.upper()
@@ -418,7 +418,7 @@ If two grid squares are given, the distance and azimuth between them is calculat
 async def contests(ctx):
     '''Gets info about contests upcoming in the next 8 days.'''
 
-    async with ctx.typing():
+    with ctx.typing():
         feed = feedparser.parse('http://www.contestcalendar.com/calendar.rss')
 
         contests = {e['title']:(e['summary'], e['link']) for e in feed['entries']}
@@ -433,7 +433,7 @@ async def contests(ctx):
 
 #########################
 
-WORDS = open('words').read().splitlines()
+WORDS = open('words').read().lower().splitlines()
 
 @asyncio.coroutine
 def updateCty():
