@@ -257,7 +257,7 @@ async def cond(ctx, msg : str = ''):
 async def map(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
     Optional argument:`cq` = CQ Zones, `itu` = ITU Zones, `arrl` or `rac` =
-    ARRL/RAC sections, `us` = US Callsign Areas.'''
+    ARRL/RAC sections, `cn` = Chinese Callsign Areas, `us` = US Callsign Areas.'''
     async with ctx.typing():
         if msg.lower() == 'cq':
             embed = discord.Embed(title='Worldwide CQ Zones Map',
@@ -271,6 +271,10 @@ async def map(ctx, msg : str = ''):
             embed = discord.Embed(title='ARRL/RAC Section Map',
                 colour=green)
             embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856898220064778/sections.png')
+        elif msg.lower() == 'cn':
+            embed = discord.Embed(title='Chinese Callsign Areas',
+                colour=green)
+            embed.set_image(url='https://cdn.discordapp.com/attachments/443246106416119810/492846548242137091/2011-0802-E4B8ADE59BBDE4B89AE4BD99E58886E58CBAE59CB0E59BBEE88BB1E696871800x1344.png')
         else:
             embed = discord.Embed(title='US Callsign Areas',
                 colour=green)
