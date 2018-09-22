@@ -3,6 +3,7 @@
 import discord
 from discord.ext import commands
 import asyncio
+import aiohttp, io
 import json
 import logging
 import random
@@ -37,22 +38,21 @@ async def on_ready():
 @bot.command(aliases=['about'])
 async def info(ctx):
     '''Shows info about QRM.'''
-    async with ctx.typing():
+    with ctx.typing():
         embed = discord.Embed(title='About QRM', description=bot.description, colour=blue)
         embed = embed.add_field(name='Author', value='Galen Gold, KB6EE\n<@!200102491231092736> (GaiusAurus#2539)', inline=False)
         embed = embed.add_field(name='Contributing', value='Check out the source on GitHub: https://github.com/young-amateurs-rc/qrmbot-discord', inline=False)
         embed = embed.add_field(name='License', value='QRM is released under the BSD 2-Clause License', inline=False)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def ping(ctx):
-    async with ctx.typing():
-        await ctx.send(f'**Pong!** Current ping is {bot.latency*1000:.1f} ms')
+    await ctx.send(f'**Pong!** Current ping is {bot.latency*1000:.1f} ms')
 
 @bot.command(aliases=['h'])
 async def help(ctx):
     '''Show this message.'''
-    async with ctx.typing():
+    with ctx.typing():
         embed = discord.Embed(title='Commands', description=bot.description, colour=green)
         cmds = sorted(list(bot.commands), key=lambda x:x.name)
         for cmd in cmds:
@@ -61,32 +61,31 @@ async def help(ctx):
                 v += '\n*Aliases:* ?' +\
                     f', {pfx}'.join(cmd.aliases).rstrip(f', {pfx}')
             embed = embed.add_field(name=pfx+cmd.name, value=v, inline=False)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['x'])
 async def xkcd(ctx, num : str):
     '''Look up an xkcd by number.'''
-    async with ctx.typing():
-        await ctx.send('http://xkcd.com/' + num)
+    await ctx.send('http://xkcd.com/' + num)
 
 @bot.command(aliases=['q'])
 async def qcode(ctx, q : str):
     '''Look up a Q Code.'''
-    async with ctx.typing():
+    with ctx.typing():
         q = q.upper()
         try:
             code = qcodes[q]
             embed = discord.Embed(title=q, description=qcodes[q], colour=green)
         except:
             embed = discord.Embed(title=q, description='Q Code not found', colour=red)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['ph', 'phoneticize', 'phoneticise', 'phone'])
 async def phonetics(ctx, *, msg : str):
     '''Get phonetics for a word or phrase.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
-        for char in msg:
+        for char in msg.lower():
             if char.isalpha():
                 w = [word for word in WORDS if (word[0] == char)]
                 result += random.choice(w)
@@ -94,12 +93,12 @@ async def phonetics(ctx, *, msg : str):
                 result += char
             result += ' '
         embed = discord.Embed(title=f'Phonetics for {msg}', description=result.title(), colour=green)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['cw'])
 async def morse(ctx, *, msg : str):
     '''Converts ASCII to international morse code.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
         for char in msg.upper():
             try:
@@ -108,12 +107,12 @@ async def morse(ctx, *, msg : str):
                 result += '<?>'
             result += ' '
         embed = discord.Embed(title=f'Morse Code for {msg}', description=result, colour=green)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['demorse'])
 async def unmorse(ctx, *, msg : str):
     '''Converts international morse code to ASCII.'''
-    async with ctx.typing():
+    with ctx.typing():
         result = ''
         msg0 = msg
         msg = msg.split('/')
@@ -126,12 +125,12 @@ async def unmorse(ctx, *, msg : str):
                     result += '<?>'
             result += ' '
         embed = discord.Embed(title=f'ASCII for {msg0}', description=result, colour=green)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['cww'])
 async def weight(ctx, msg : str):
     '''Calculates the CW Weight of a callsign.'''
-    async with ctx.typing():
+    with ctx.typing():
         msg = msg.upper()
         weight = 0
         for char in msg:
@@ -144,44 +143,41 @@ async def weight(ctx, msg : str):
                 return
         res = f'The CW weight is **{weight}**'
         embed = discord.Embed(title=f'CW Weight of {msg}', description=res, colour=green)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['z'])
 async def utc(ctx):
     '''Gets the current time in UTC.'''
-    async with ctx.typing():
+    with ctx.typing():
         d = datetime.utcnow()
         result = '**' + d.strftime('%Y-%m-%d %H:%M') + 'Z**'
         embed = discord.Embed(title='The current time is:', description=result, colour=green)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['ae'])
 async def ae7q(ctx, call : str):
     '''Links to info about a callsign from AE7Q.'''
-    async with ctx.typing():
-        await ctx.send(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
+    await ctx.send(f'http://ae7q.com/query/data/CallHistory.php?CALL={call}')
 
 @bot.command()
 async def qrz(ctx, call : str):
     '''Links to info about a callsign from QRZ.'''
-    async with ctx.typing():
-        await ctx.send(f'http://qrz.com/db/{call}')
+    await ctx.send(f'http://qrz.com/db/{call}')
 
 @bot.command()
 async def sat(ctx, sat : str, grid1 : str, grid2 : str = None):
     '''Links to info about satellite passes on satmatch.com.
 Usage: `?sat sat_name grid1 grid2`'''
-    async with ctx.typing():
-        now = datetime.utcnow().strftime('%Y-%m-%d%%20%H:%M')
-        if grid2 is None or grid2 == '':
-            await ctx.send(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}?search_start_time={now}&duration_hrs=24')
-        else:
-            await ctx.send(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}/obs2/{grid2}?search_start_time={now}&duration_hrs=24')
+    now = datetime.utcnow().strftime('%Y-%m-%d%%20%H:%M')
+    if grid2 is None or grid2 == '':
+        await ctx.send(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}?search_start_time={now}&duration_hrs=24')
+    else:
+        await ctx.send(f'http://www.satmatch.com/satellite/{sat}/obs1/{grid1}/obs2/{grid2}?search_start_time={now}&duration_hrs=24')
 
 @bot.command(aliases=['dx'])
 async def dxcc(ctx, q : str):
     '''Gets info about a prefix.'''
-    async with ctx.typing():
+    with ctx.typing():
         noMatch = True
         qMatch = None
         q = q.upper()
@@ -222,13 +218,13 @@ async def dxcc(ctx, q : str):
             updatedDate += CTY['last_updated'][6:8]
             res = f'CTY.DAT last updated on {updatedDate}'
             embed = discord.Embed(title=res, colour=blue)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['bands'])
 async def plan(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
     Optional argument: `cn` = China, `ca` = Canada, `us` = USA.'''
-    async with ctx.typing():
+    with ctx.typing():
         if msg.lower() == 'cn':
             embed = discord.Embed(title='Chinese Amateur Radio Bands',
                 colour=green)
@@ -241,24 +237,25 @@ async def plan(ctx, msg : str = ''):
             embed = discord.Embed(title='US Amateur Radio Bands',
                 colour=green)
             embed.set_image(url='https://cdn.discordapp.com/attachments/377206780700393473/466729318945652737/band-chart.png')
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['condx'])
 async def cond(ctx, msg : str = ''):
     '''Posts an image of HF Band Conditions.'''
-    async with ctx.typing():
-        embed = discord.Embed(title='HF Band Conditions',
-            colour=green)
-        embed.set_image(url='https://rigreference.com/solar/img/wide')
-        embed.set_footer(text='Source: rigreference.com')
-        await ctx.send(embed=embed)
+    with ctx.typing():
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://rigreference.com/solar/img/wide') as resp:
+                if resp.status != 200:
+                    return await ctx.send('Could not download file...')
+                data = io.BytesIO(await resp.read())
+    await ctx.send(file=discord.File(data, 'condx.png'))
 
 @bot.command()
 async def map(ctx, msg : str = ''):
     '''Posts an image of Frequency Allocations.
     Optional argument:`cq` = CQ Zones, `itu` = ITU Zones, `arrl` or `rac` =
     ARRL/RAC sections, `cn` = Chinese Callsign Areas, `us` = US Callsign Areas.'''
-    async with ctx.typing():
+    with ctx.typing():
         if msg.lower() == 'cq':
             embed = discord.Embed(title='Worldwide CQ Zones Map',
                 colour=green)
@@ -279,12 +276,12 @@ async def map(ctx, msg : str = ''):
             embed = discord.Embed(title='US Callsign Areas',
                 colour=green)
             embed.set_image(url='https://cdn.discordapp.com/attachments/427925486908473344/472856506476265497/WASmap_Color.png')
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['randomq'])
 async def rq(ctx, level: str = None):
     '''Gets a random question from the Technician, General, and/or Extra question pools.'''
-    async with ctx.typing():
+    with ctx.typing():
         selected_pool = None
         try:
             level = level.lower()
@@ -319,12 +316,12 @@ async def rq(ctx, level: str = None):
         embed = embed.add_field(name='Answer:', value='Type _?rqa_ for answer', inline=False)
         global lastq
         lastq[ctx.message.channel.id] = (question['number'], question['answer'])
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def rqa(ctx, ans : str = None):
     '''Returns the answer to question last asked (Optional argument: your answer).'''
-    async with ctx.typing():
+    with ctx.typing():
         global lastq
         correct_ans = lastq[ctx.message.channel.id][1]
         q_num = lastq[ctx.message.channel.id][0]
@@ -339,14 +336,14 @@ async def rqa(ctx, ans : str = None):
         else:
             result = f'The correct answer to {q_num} was **{correct_ans}**.'
             embed = discord.Embed(title=f'{q_num} Answer', description=result, colour=blue)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def grid(ctx, lat : str, lon : str):
     '''Calculates the grid square for latitude and longitude coordinates.
 Usage: `?grid <lat> <lon>`
 `lat` and `lon` are decimal coordinates, with negative being latitude South and longitude West.'''
-    async with ctx.typing():
+    with ctx.typing():
         grid = "**"
         try:
             latf = float(lat) + 90
@@ -366,13 +363,13 @@ Usage: `?grid <lat> <lon>`
         except Exception as e:
             msg = f'Error generating grid square for {lat}, {lon}.'
             embed = discord.Embed(title=msg, description=str(e), colour=red)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['ungrid'])
 async def loc(ctx, grid : str, grid2 : str = None):
     '''Calculates the latitude and longitude for the center of a grid square.
 If two grid squares are given, the distance and azimuth between them is calculated.'''
-    async with ctx.typing():
+    with ctx.typing():
         if grid2 is None or grid2 == '':
             try:
                 grid = grid.upper()
@@ -420,14 +417,13 @@ If two grid squares are given, the distance and azimuth between them is calculat
             except Exception as e:
                 msg = f'Error generating great circle distance and bearing from {grid} and {grid2}.'
                 embed = discord.Embed(title=msg, description=str(e), colour=red)
-
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(aliases=['cc', 'tests'])
 async def contests(ctx):
     '''Gets info about contests upcoming in the next 8 days.'''
 
-    async with ctx.typing():
+    with ctx.typing():
         feed = feedparser.parse('http://www.contestcalendar.com/calendar.rss')
 
         contests = {e['title']:(e['summary'], e['link']) for e in feed['entries']}
@@ -438,11 +434,11 @@ async def contests(ctx):
         embed = embed.set_footer(text='Data courtesy ContestCalendar.com')
         for c, d in contests.items():
             embed = embed.add_field(name=c, value='\n'.join(d), inline=True)
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 #########################
 
-WORDS = open('words').read().splitlines()
+WORDS = open('words').read().lower().splitlines()
 
 @asyncio.coroutine
 def updateCty():
