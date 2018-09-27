@@ -10,7 +10,7 @@ import random
 import math
 import feedparser
 from datetime import datetime
-import time, os, re, shutil        # tex
+import time, os, re, shutil # tex
 from cty_json import genCtyJson
 
 logging.basicConfig(level=logging.INFO)
