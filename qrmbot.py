@@ -9,8 +9,8 @@ import logging
 import random
 import math
 import feedparser
-from subprocess import call
 from datetime import datetime
+import time, os, re, shutil        # tex
 from cty_json import genCtyJson
 
 logging.basicConfig(level=logging.INFO)
@@ -436,9 +436,39 @@ async def contests(ctx):
             embed = embed.add_field(name=c, value='\n'.join(d), inline=True)
     await ctx.send(embed=embed)
 
+@bot.command(aliases = ['tikz'])
+async def tex(ctx, *, tex : str):
+    '''Renders LaTeX within the `align*` environment. The `tikz` alias renders
+    within the `tikzpicture` environment.'''
+    template = templates[str(ctx.invoked_with)]
+
+    #print (tex)
+    if any(sub in tex for sub in ['align', '\\input', '\\immediate','\\write18','\\file','tikzpicture','\\catcode','\\newread','\\newwrite']):
+        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+        return
+    try:
+        fn = generate_image(tex, template)
+    except Exception as e:
+        print(f"Error: {tex}")
+        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+        return
+
+    if not os.path.isfile(fn):
+        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+
+    if os.path.getsize(fn) > 0:
+        print(f"Rendered: {tex}")
+        await ctx.send(file=discord.File(fn))
+    else:
+        print(f"Failed to render {tex}")
+        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+
+    time.sleep(1)
+    os.system("rm *.tex *.log *.dvi *.png *.aux *.ps")
+
 #########################
 
-WORDS = open('words').read().lower().splitlines()
+WORDS = open('resources/words').read().lower().splitlines()
 
 @asyncio.coroutine
 def updateCty():
@@ -452,7 +482,7 @@ def updateCty():
             firstRun = True
         regen = genCtyJson()
         if regen or firstRun:
-            with open('cty.json') as ctyfile:
+            with open('resources/cty.json') as ctyfile:
                 print('Reloading CTY JSON data...')
                 CTY = json.load(ctyfile)
                 CTY_list = list(CTY.keys())
@@ -492,24 +522,71 @@ def getCoords(grid : str):
         lat += 0.5;
         return (lat, lon)
 
-with open('morse.json') as morse_file:
+# Generate LaTeX locally. Is there such things as rogue LaTeX code?
+def generate_image(latex, template):
+    num = str(random.randint(0, 2 ** 31))
+    latex_file = num + '.tex'
+    dvi_file = num + '.dvi'
+    with open(latex_file, 'w') as tex:
+        latex = template.replace('__DATA__', latex)
+        tex.write(latex)
+        tex.flush()
+        tex.close()
+    os.system('latex -shell-escape -halt-on-error ' + latex_file + '</dev/null')
+    pngfile = num + '.png'
+    os.system(f'convert {pngfile} -trim {pngfile}')
+    os.system(f'convert {pngfile} -bordercolor white -border 25 {pngfile}')
+    #os.system('dvipng -q* -D 300 -T tight ' + dvi_file)
+    return pngfile
+
+with open('resources/morse.json') as morse_file:
     ascii2morse = json.load(morse_file)
     morse2ascii = {v: k for k, v in ascii2morse.items()}
 
-with open('qcodes.json') as qcode_file:
+with open('resources/qcodes.json') as qcode_file:
     qcodes = json.load(qcode_file)
 
 with open('secrets.json') as secrets_file:
     secrets = json.load(secrets_file)
 
-with open('Tech.json') as f:
+with open('resources/Tech.json') as f:
     tech_pool = json.load(f)
 
-with open('General.json') as f:
+with open('resources/General.json') as f:
     gen_pool = json.load(f)
 
-with open('Extra.json') as f:
+with open('resources/Extra.json') as f:
     extra_pool = json.load(f)
+
+LATEX_FRAMEWORK = r"""
+\documentclass[convert={density=1000},varwidth]{standalone}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\begin{document}
+\begin{align*}
+__DATA__
+\end{align*}
+\end{document}
+"""
+
+TIKZ_FRAMEWORK = r"""
+\documentclass[convert={density=1000},varwidth]{standalone}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage[siunitx]{circuitikz}
+\begin{document}
+\begin{tikzpicture}
+__DATA__
+\end{tikzpicture}
+\end{document}
+"""
+
+templates = {'tex': LATEX_FRAMEWORK,
+             'tikz': TIKZ_FRAMEWORK}
+
 
 bot.run(secrets['token'])
 
