@@ -5,10 +5,10 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 RUN apt update && \
-    apt-get install -y -qq texlive-latex-base texlive-science \
+    apt-get install -y -qq texlive-full \
     > /dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
-CMD ["python", "qrmbot.py"]
+CMD ["./run-qrm.sh"]

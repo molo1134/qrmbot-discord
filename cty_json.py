@@ -16,7 +16,7 @@ import sys, os
 
 def genCtyJson():
     try:
-        old_cty = json.load(open('cty.json'))['last_updated']
+        old_cty = json.load(open('resources/cty.json'))['last_updated']
     except:
         old_cty = None
         print('Missing/Broken cty.json')
@@ -86,7 +86,7 @@ def genCtyJson():
                             data['tz'] = -1 * float(re.search(r'\{(\w+)\}', i).group(1))
                         prefix = re.sub(r'=?([^\(\[]*)(\(\d+\))?(\[\d+\])?(<\d+\/\d+>)?(\{\w+\})?(~\w+~)?', r'\1', i)
                         cty[prefix] = data
-    with open('cty.json', 'w') as cty_json:
+    with open('resources/cty.json', 'w') as cty_json:
         json.dump(cty, cty_json)
 
     os.remove('cty.dat')

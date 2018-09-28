@@ -56,6 +56,8 @@ async def help(ctx):
         embed = discord.Embed(title='Commands', description=bot.description, colour=green)
         cmds = sorted(list(bot.commands), key=lambda x:x.name)
         for cmd in cmds:
+            if cmd.name in ['restart', 'shutdown']:
+                continue
             v = cmd.help
             if len(cmd.aliases) > 0:
                 v += '\n*Aliases:* ?' +\
@@ -466,7 +468,33 @@ async def tex(ctx, *, tex : str):
     time.sleep(1)
     os.system("rm *.tex *.log *.dvi *.png *.aux *.ps")
 
+# Special Commands
+
+@bot.command()
+async def restart(ctx):
+    if any([str(x.id) in secrets['exit_role'] for x in ctx.author.roles]):
+        await ctx.channel.send("Restarting qrm...")
+        await bot.logout()
+    else:
+        try:
+            await ctx.message.add_reaction("❌")
+        except:
+            return
+
+@bot.command()
+async def shutdown(ctx):
+    if any([str(x.id) in secrets['exit_role'] for x in ctx.author.roles]):
+        await ctx.channel.send("Shutting down qrm...")
+        os._exit(42)
+    else:
+        try:
+            await ctx.message.add_reaction("❌")
+        except:
+            return
+
+
 #########################
+
 
 WORDS = open('resources/words').read().lower().splitlines()
 
