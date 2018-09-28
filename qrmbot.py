@@ -444,26 +444,28 @@ async def tex(ctx, *, tex : str):
     within the `tikzpicture` environment.'''
     template = templates[str(ctx.invoked_with)]
 
-    #print (tex)
-    if any(sub in tex for sub in ['align', '\\input', '\\immediate','\\write18','\\file','tikzpicture','\\catcode','\\newread','\\newwrite']):
-        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
-        return
-    try:
-        fn = generate_image(tex, template)
-    except Exception as e:
-        print(f"Error: {tex}")
-        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
-        return
+    with ctx.typing():
+        #print (tex)
+        if any(sub in tex for sub in ['align', '\\input', '\\immediate','\\write18','\\file','tikzpicture','\\catcode','\\newread','\\newwrite']):
+            await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+            return
+        try:
+            fn = generate_image(tex, template, ctx.invoked_with)
+        except Exception as e:
+            print(f"Error: {tex}")
+            await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+            return
 
-    if not os.path.isfile(fn):
-        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+        if not os.path.isfile(fn):
+            await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
 
-    if os.path.getsize(fn) > 0:
-        print(f"Rendered: {tex}")
-        await ctx.send(file=discord.File(fn))
-    else:
-        print(f"Failed to render {tex}")
-        await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
+        if os.path.getsize(fn) > 0:
+            print(f"Rendered: {tex}")
+            await ctx.send(file=discord.File(fn))
+
+        else:
+            print(f"Failed to render {tex}")
+            await ctx.send(f"Failed to render\n```tex\n{tex}\n```")
 
     time.sleep(1)
     os.system("rm *.tex *.log *.dvi *.png *.aux *.ps")
@@ -551,7 +553,7 @@ def getCoords(grid : str):
         return (lat, lon)
 
 # Generate LaTeX locally. Is there such things as rogue LaTeX code?
-def generate_image(latex, template):
+def generate_image(latex, template, cmd):
     num = str(random.randint(0, 2 ** 31))
     latex_file = num + '.tex'
     dvi_file = num + '.dvi'
@@ -564,7 +566,8 @@ def generate_image(latex, template):
     pngfile = num + '.png'
     os.system(f'convert {pngfile} -trim {pngfile}')
     os.system(f'convert {pngfile} -bordercolor white -border 25 {pngfile}')
-    #os.system('dvipng -q* -D 300 -T tight ' + dvi_file)
+    if cmd == 'tex':
+        os.system(f'convert {pngfile} -colorspace sRGB -fill "#36393F" -opaque white -fill white -opaque black {pngfile}')
     return pngfile
 
 with open('resources/morse.json') as morse_file:
