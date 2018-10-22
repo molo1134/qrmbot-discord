@@ -73,7 +73,7 @@ async def xkcd(ctx, num : str):
 @bot.command()
 async def tar(ctx):
     '''Returns an xkcd about tar.'''
-    xkcd(ctx, '1168')
+    await ctx.send('http://xkcd.com/1168')
 
 @bot.command(aliases=['q'])
 async def qcode(ctx, q : str):
