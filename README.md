@@ -1,5 +1,5 @@
 # qrmbot-discord
-port of molo1134/qrmbot to python and discord
+port of [molo1134/qrmbot](https://github.com/molo1134/qrmbot) to python and discord
 
 ## Dependencies
 
